@@ -19,9 +19,12 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import net.test.PreviewPanel;
+import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
 import net.test.app.event.LineThresholdEvent;
+import net.test.app.event.MinAreaSizeEvent;
 import net.test.app.event.ScanStepEvent;
+import net.test.app.event.StrokeSizeEvent;
 import net.test.app.event.ZoomFactorEvent;
 
 /**
@@ -46,7 +49,10 @@ public class ToolsPane extends JPanel {
         JLabel scanStepLabel = new JLabel("Scan step");
         JLabel verticalLabel = new JLabel("Line threshold");
         JLabel leftLabel = new JLabel("Color threshold");
-
+        JLabel minAreaSizeLabel = new JLabel("Min аrea size");
+        JLabel strokeSizeLabel = new JLabel("Stroke size");
+        JLabel areaSeparatorLabel = new JLabel("Area separator");
+        
         JButton loadButton = new JButton("Open");
 
         loadButton.addActionListener(new ActionListener() {
@@ -136,6 +142,66 @@ public class ToolsPane extends JPanel {
                 }
             }
         });
+        
+        
+        JSlider minAreaSizeThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                30,
+                PreviewPanel.MIN_AREA_SIZE);
+
+        minAreaSizeThreshold.setPaintTicks(true);
+        minAreaSizeThreshold.setMajorTickSpacing(5);
+        minAreaSizeThreshold.setMinorTickSpacing(1);
+        minAreaSizeThreshold.setPaintLabels(true);
+
+        minAreaSizeThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new MinAreaSizeEvent(s1.getValue()));
+                }
+            }
+        });
+        
+        
+        JSlider strokeSizeThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                10,
+                PreviewPanel.STROKE_SIZE);
+
+        strokeSizeThreshold.setPaintTicks(true);
+        strokeSizeThreshold.setMajorTickSpacing(1);
+        strokeSizeThreshold.setMinorTickSpacing(10);
+        strokeSizeThreshold.setPaintLabels(true);
+
+        strokeSizeThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new StrokeSizeEvent(s1.getValue()));
+                }
+            }
+        });
+        
+        
+        JSlider areaSeparatorThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                50,
+                PreviewPanel.AREA_SEPARATOR);
+
+        areaSeparatorThreshold.setPaintTicks(true);
+        areaSeparatorThreshold.setMajorTickSpacing(10);
+        areaSeparatorThreshold.setMinorTickSpacing(1);
+        areaSeparatorThreshold.setPaintLabels(true);
+
+        areaSeparatorThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new AreaSeparatorEvent(s1.getValue()));
+                }
+            }
+        });
 
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
@@ -147,6 +213,9 @@ public class ToolsPane extends JPanel {
                         .addComponent(scanStepLabel)
                         .addComponent(verticalLabel)
                         .addComponent(leftLabel)
+                        .addComponent(minAreaSizeLabel)
+                        .addComponent(strokeSizeLabel)
+                        .addComponent(areaSeparatorLabel)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addComponent(loadButton)
@@ -154,6 +223,9 @@ public class ToolsPane extends JPanel {
                         .addComponent(scanStepThreshold)
                         .addComponent(lineThreshold)
                         .addComponent(colorThreshold)
+                        .addComponent(minAreaSizeThreshold)
+                        .addComponent(strokeSizeThreshold)
+                        .addComponent(areaSeparatorThreshold)
                 )
         );
 
@@ -177,6 +249,18 @@ public class ToolsPane extends JPanel {
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                         .addComponent(leftLabel)
                         .addComponent(colorThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(minAreaSizeLabel)
+                        .addComponent(minAreaSizeThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(strokeSizeLabel)
+                        .addComponent(strokeSizeThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(areaSeparatorLabel)
+                        .addComponent(areaSeparatorThreshold)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)));
     }

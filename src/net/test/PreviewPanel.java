@@ -19,10 +19,13 @@ import java.io.File;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
 import net.test.app.event.LineThresholdEvent;
 import net.test.app.event.ScanStepEvent;
 import net.test.app.event.ZoomFactorEvent;
+import net.test.app.event.MinAreaSizeEvent;
+import net.test.app.event.StrokeSizeEvent;
 import net.test.core.Area;
 import net.test.core.Line;
 import net.test.strategy.DefaultScanStrategy;
@@ -44,10 +47,16 @@ public class PreviewPanel extends JPanel {
     private int scanStep = 1;
     private int lineThreshold = 2;
     private int colorThreshold = 80;
+    private int minAreaSize = 1;
+    private int strokeSize = 4;
+    private int areaSeparator = 15;
 
     public static int SCAN_STEP = 1;
     public static int LINE_THRESHOLD = 2;
     public static int COLOR_THRESHOLD = 80;
+    public static int MIN_AREA_SIZE = 1;
+    public static int STROKE_SIZE = 4;
+    public static int AREA_SEPARATOR = 15;
 
     private boolean ENABLE_RENDERING_HINTS = false;
     
@@ -138,14 +147,13 @@ public class PreviewPanel extends JPanel {
             g.drawLine(zoom * l.p1.x + zoom * width, zoom * l.p1.y, zoom * l.p2.x + zoom * width, zoom * l.p2.y);
         });
 
-        g.setStroke(new BasicStroke(4));
+        g.setStroke(new BasicStroke(strokeSize));
 
-        final int minAreaSize = 4 * (3 - scanStep);
         for (Area a : results.getAreas()) {
             if (a.getSize() > minAreaSize) {
                 Line p = null;
                 List<Line> areaLines = a.getLines();
-                if (areaLines.size() > 15 * (3 - scanStep)) {
+                if (areaLines.size() > areaSeparator * (3 - scanStep)) {
                     g.setColor(Color.GREEN);
                 } else {
                     g.setColor(Color.MAGENTA);
@@ -174,6 +182,9 @@ public class PreviewPanel extends JPanel {
     private Object scanStepSubscriber;
     private Object lineThresholdSubscriber;
     private Object colorThresholdSubscriber;
+    private Object minAreaSizeSubscriber;
+    private Object strokeSizeSubscriber;
+    private Object areaSeparatorSubscriber;
 
     protected final void subscribeEvents() {
 
@@ -209,6 +220,33 @@ public class PreviewPanel extends JPanel {
             @Override
             public void onEvent(Event event) {
                 colorThreshold = ((ColorThresholdEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        minAreaSizeSubscriber = EventUtil.subscribe(MinAreaSizeEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                minAreaSize = ((MinAreaSizeEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        strokeSizeSubscriber = EventUtil.subscribe(StrokeSizeEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                strokeSize = ((StrokeSizeEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        areaSeparatorSubscriber = EventUtil.subscribe(AreaSeparatorEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                areaSeparator = ((AreaSeparatorEvent) event).getValue();
                 repaint();
             }
         });

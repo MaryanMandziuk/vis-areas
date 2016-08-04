@@ -11,14 +11,18 @@ import com.taunova.event.EventUtil;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import net.test.PreviewPanel;
+import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
 import net.test.app.event.LineThresholdEvent;
@@ -54,7 +58,7 @@ public class ToolsPane extends JPanel {
         JLabel areaSeparatorLabel = new JLabel("Area separator");
         
         JButton loadButton = new JButton("Open");
-
+        
         loadButton.addActionListener(new ActionListener() {
 
             @Override
@@ -62,7 +66,33 @@ public class ToolsPane extends JPanel {
                 // select new image and let preview panel refresh
             }
         });
+        
+        JRadioButton verticalHorizontalScan = new JRadioButton("Vertical and horizontal scan", true);
+        JRadioButton angleScan = new JRadioButton("Angle scan", false);
+        
+        verticalHorizontalScan.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JRadioButton s1 = (JRadioButton) e.getSource();
+                if (s1.isSelected()) {
+                    EventUtil.publish(new AngleScanEvent(false));
+                }
+            }
+        });
 
+        angleScan.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JRadioButton s1 = (JRadioButton) e.getSource();
+                if (s1.isSelected()) {
+                    EventUtil.publish(new AngleScanEvent(true));
+                }
+            }
+        });
+        ButtonGroup group = new ButtonGroup();
+        group.add(verticalHorizontalScan);
+        group.add(angleScan);
+
+        
+        
         // --- Color Panel ----------------------------------------------------
         JSlider zoomThreshold = new JSlider(JSlider.HORIZONTAL,
                 1,
@@ -226,6 +256,8 @@ public class ToolsPane extends JPanel {
                         .addComponent(minAreaSizeThreshold)
                         .addComponent(strokeSizeThreshold)
                         .addComponent(areaSeparatorThreshold)
+                        .addComponent(verticalHorizontalScan)
+                        .addComponent(angleScan)
                 )
         );
 
@@ -261,6 +293,13 @@ public class ToolsPane extends JPanel {
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                         .addComponent(areaSeparatorLabel)
                         .addComponent(areaSeparatorThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(verticalHorizontalScan)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        
+                        .addComponent(angleScan)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)));
     }

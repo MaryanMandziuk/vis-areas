@@ -37,9 +37,19 @@ public class DefaultScanStrategy implements ScanStrategy {
         List<Line> horizontal = scanHorizontally(context);
         List<Line> intersections = scanIntersections(horizontal, vertical);
         List<Area> areas = restoreAreas(intersections);
+        System.out.println("Bad scan");
         return new ScanResult(areas, vertical, horizontal);
     }
-
+    
+    public ScanResult angleScanImage(Context context) {
+        List<Line> minor = scannTopLeftToBottomRight(context);
+        List<Line> major = scannTopRightToLeftBottom(context);
+        List<Line> intersections = scanIntersections(major, minor);
+        List<Area> areas = restoreAreas(intersections);
+        System.out.println("Good scan");
+        return new ScanResult(areas, minor, major);
+    }
+    
     /**
      *
      * @param intersectedLines
@@ -74,7 +84,7 @@ public class DefaultScanStrategy implements ScanStrategy {
      * @param lines
      */
     private static void _restoreArea(Line line, Area area, List<Line> lines) {
-        if (line.isVertical()) {
+        if (line.isVertical() || line.isMajor()) {
             area.add(line);
         }
         lines.remove(line);
@@ -105,7 +115,15 @@ public class DefaultScanStrategy implements ScanStrategy {
     public final List<Line> scanHorizontally(Context context) {
         return Util.scannHorizontally(0, height, width, context.getScanStep(), context);
     }
-
+    
+    public final List<Line> scannTopLeftToBottomRight(Context context) {
+        return Util.scannTopLeftToBottomRight(0, width, height, context.getScanStep(), context);
+    }
+    
+    public final List<Line> scannTopRightToLeftBottom(Context context) {
+        return Util.scannTopRightToLeftBottom(0, width, height, context.getScanStep(), context);
+    }
+    
     public final List<Line> scanIntersections(List<Line> horizontal, List<Line> vertical) {
         List<Line> result = new ArrayList();
         // search for intersections

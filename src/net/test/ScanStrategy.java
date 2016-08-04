@@ -18,4 +18,5 @@ public interface ScanStrategy {
      * @return 
      */
     ScanResult scanImage(Context context);
+    ScanResult angleScanImage(Context context);
 }

@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
 import net.test.app.event.LineThresholdEvent;
@@ -50,6 +51,7 @@ public class PreviewPanel extends JPanel {
     private int minAreaSize = 1;
     private int strokeSize = 4;
     private int areaSeparator = 15;
+    private boolean anglePaint = false;
 
     public static int SCAN_STEP = 1;
     public static int LINE_THRESHOLD = 2;
@@ -133,8 +135,14 @@ public class PreviewPanel extends JPanel {
 
         DefaultScanStrategy strategy = new DefaultScanStrategy(pixels, width, height);
         ImageScanner scanner = new ImageScanner(strategy, pixels, width, height);
-        ScanResult results = scanner.scanImage(context);
-
+        ScanResult results;
+        if (anglePaint) {
+            results = scanner.angleScanImage(context);
+            System.out.println("Here");
+        } else {
+            results = scanner.scanImage(context);
+        }
+        System.out.println(anglePaint);
         g.setColor(Color.RED);
 
         results.getVerticalLines().stream().forEach((l) -> {
@@ -185,6 +193,7 @@ public class PreviewPanel extends JPanel {
     private Object minAreaSizeSubscriber;
     private Object strokeSizeSubscriber;
     private Object areaSeparatorSubscriber;
+    private Object anglePaintSubscriber;
 
     protected final void subscribeEvents() {
 
@@ -247,6 +256,15 @@ public class PreviewPanel extends JPanel {
             @Override
             public void onEvent(Event event) {
                 areaSeparator = ((AreaSeparatorEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        anglePaintSubscriber = EventUtil.subscribe(AngleScanEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                anglePaint = ((AngleScanEvent) event).getValue();
                 repaint();
             }
         });

@@ -42,6 +42,47 @@ public class Area {
      * 
      */
     public void sort() {
+        if (lines.size() > 0) {
+            if (lines.get(0).isVertical()) {
+                verticalHorizontalSort();
+            } else {
+                angleSort();
+            }
+        }
+    }
+    
+    private void angleSort() {
+        lines.sort((Line o1, Line o2) -> (int)o1.getIntercept() - (int)o2.getIntercept());
+
+        List<Line> filtered = new ArrayList();
+        Line current = null;
+        
+        for (Line l : lines) {
+            boolean skip = false;
+            if (null != current && current.getIntercept() == l.getIntercept()) {
+
+                if (current.p1.x > l.p2.x && current.p1.y > l.p2.y) {
+                    current.p1.y = l.p1.y;
+                    current.p1.x = l.p1.x;
+                }
+                if (current.p2.x < l.p2.x && current.p2.y < l.p2.y) {
+                    current.p2.x = l.p2.x;
+                    current.p2.y = l.p2.y;
+                }
+
+                skip = true; 
+            }
+            if (!skip) {
+                current = l;
+                filtered.add(current);
+            }
+        }
+
+        lines = filtered;
+    }
+    
+    
+    private void verticalHorizontalSort() {
         lines.sort((Line o1, Line o2) -> o1.p1.x - o2.p1.x);
 
         List<Line> filtered = new ArrayList();
@@ -68,7 +109,6 @@ public class Area {
 
         lines = filtered;
     }
-
     /**
      * 
      * @param line 

@@ -111,4 +111,178 @@ public final class Util {
 
         return result;
     }
+    
+    
+    public static List<Line> scannTopLeftToBottomRight(int offset, int width, int height, int scanStep,
+            Context context) {
+        
+        int pixels[][] = context.getPixels();
+        int colorThreshold = context.getColorThreshold();
+        int lineThreshold = context.getLineThreshold();
+        
+        List<Line> result = new ArrayList();
+        
+        int c = 0;
+        int k = 0;
+        
+        for (int i = offset; i < width; i += scanStep) {
+            
+            int h1 = 0;
+            int pi = 0, pj = 0;
+            c = i;
+            k = (c < height - 1) ? c : height - 1;
+            
+            for (int j = 0; j <= k; j += scanStep, i -= scanStep) {
+
+                int value = 0xFF & pixels[i][j];
+                if (value > colorThreshold && h1 > 0) {
+                    
+                    if (h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i, j));
+                        result.add(l);
+                    }
+
+                    h1 = 0;
+                } else if (value < colorThreshold && h1 > 0 && i == 0) {
+                    if (++h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i , j));
+                        result.add(l);
+                    }
+                } else if (value < colorThreshold && h1 > 0) {
+                    h1++;
+                }  else if (value < colorThreshold && h1 == 0 ) {
+                    h1++;
+                    pi = i;
+                    pj = j;
+                }
+            }
+            i = c;
+        }
+        
+        
+        for (int j = 1; j < height; j += scanStep) {
+            int h1 = 0;
+            int pi = 0, pj = 0;
+            c = j;
+            k = width - height;
+            if (k + c < 0) {
+                k = -c;
+            }
+            
+            for(int i = width - 1; i >= c + k; i -= scanStep, j += scanStep) {
+                int value = 0xFF & pixels[i][j];
+
+                if (value > colorThreshold && h1 > 0) {
+                    if (h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i, j));
+                        result.add(l);
+                    }
+
+                    h1 = 0;
+                } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
+                    if (++h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i , j));
+                        result.add(l);
+                    }  
+                } else if (value < colorThreshold && h1 > 0) {
+                    h1++;
+                } else if (value < colorThreshold && h1 == 0 ) {
+                    h1++;
+                    pi = i;
+                    pj = j;
+                } 
+            }
+            j = c;
+        }
+        return result;
+        
+    }
+    
+    
+    public static List<Line> scannTopRightToLeftBottom(int offset, int width , int height, int scanStep,
+            Context context) {
+        
+        int pixels[][] = context.getPixels();
+        int colorThreshold = context.getColorThreshold();
+        int lineThreshold = context.getLineThreshold();
+        
+        List<Line> result = new ArrayList();
+        
+        int c = 0;
+        int k = 0;
+        
+        for (int i = width - 1; i >= offset; i -= scanStep) {
+            
+            int h1 = 0;
+            int pi = 0, pj = 0;
+            c = i;
+            if (k > height - 1) {
+                k = height - 1;
+            }
+            
+            for (int j = 0; j <= k; j += scanStep, i += scanStep) {
+                int value = 0xFF & pixels[i][j];
+                if (value > colorThreshold && h1 > 0) { 
+                    
+                    if (h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i, j));
+                        result.add(l);
+                    }
+
+                    h1 = 0;
+                } else if (value < colorThreshold && h1 > 0 && i == width - 1) {
+                    if (++h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i , j));
+                        result.add(l);
+                    }
+                } else if (value < colorThreshold && h1 > 0) {
+                    h1++;
+                }  else if (value < colorThreshold && h1 == 0 ) {
+                    h1++;
+                    pi = i;
+                    pj = j;
+                }
+            }
+            k += scanStep;
+            i = c;
+        }
+        
+        k = width - height + 1;
+        for (int j = 1; j < height; j += scanStep) {
+            int h1 = 0;
+            int pi = 0, pj = 0;
+            c = j;
+            if (k > 0 ) {
+                k = 0;
+            }
+            
+            for(int i = offset; i < height - c + k; i += scanStep, j += scanStep) {
+                int value = 0xFF & pixels[i][j];
+
+                if (value > colorThreshold && h1 > 0) { 
+                    if (h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i, j ));
+                        result.add(l);
+                    }
+
+                    h1 = 0;
+                } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
+                    if (++h1 >= lineThreshold) {
+                        Line l = new Line(new Point(pi, pj), new Point(i , j));
+                        result.add(l);
+                    }  
+                } else if (value < colorThreshold && h1 > 0) {
+                    h1++;
+                } else if (value < colorThreshold && h1 == 0 ) {
+                    h1++;
+                    pi = i;
+                    pj = j;
+                } 
+            }
+            j = c;
+            k+=scanStep;
+        }
+        return result;
+        
+    }
 }

@@ -25,6 +25,7 @@ import net.test.PreviewPanel;
 import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
+import net.test.app.event.DegreeEvent;
 import net.test.app.event.LineThresholdEvent;
 import net.test.app.event.MinAreaSizeEvent;
 import net.test.app.event.ScanStepEvent;
@@ -56,6 +57,7 @@ public class ToolsPane extends JPanel {
         JLabel minAreaSizeLabel = new JLabel("Min аrea size");
         JLabel strokeSizeLabel = new JLabel("Stroke size");
         JLabel areaSeparatorLabel = new JLabel("Area separator");
+        JLabel degreeLabel = new JLabel("Degree");
         
         JButton loadButton = new JButton("Open");
         
@@ -232,6 +234,25 @@ public class ToolsPane extends JPanel {
                 }
             }
         });
+        
+        JSlider degreeThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                45,
+                PreviewPanel.DEGREE);
+
+        degreeThreshold.setPaintTicks(true);
+        degreeThreshold.setMajorTickSpacing(5);
+        degreeThreshold.setMinorTickSpacing(1);
+        degreeThreshold.setPaintLabels(true);
+
+        degreeThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new DegreeEvent(s1.getValue()));
+                }
+            }
+        });
 
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
@@ -246,6 +267,7 @@ public class ToolsPane extends JPanel {
                         .addComponent(minAreaSizeLabel)
                         .addComponent(strokeSizeLabel)
                         .addComponent(areaSeparatorLabel)
+                        .addComponent(degreeLabel)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addComponent(loadButton)
@@ -258,6 +280,7 @@ public class ToolsPane extends JPanel {
                         .addComponent(areaSeparatorThreshold)
                         .addComponent(verticalHorizontalScan)
                         .addComponent(angleScan)
+                        .addComponent(degreeThreshold)
                 )
         );
 
@@ -300,6 +323,10 @@ public class ToolsPane extends JPanel {
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                         
                         .addComponent(angleScan)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(degreeLabel)
+                        .addComponent(degreeThreshold)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)));
     }

@@ -38,7 +38,7 @@ public class ImageScanner {
         return strategy.scanImage(context);
     }    
 
-    public ScanResult angleScanImage(Context context) {
-        return strategy.angleScanImage(context);
+    public ScanResult angleScanImage(Context context, int degree) {
+        return strategy.angleScanImage(context,  degree);
     }
 }

@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -22,6 +23,7 @@ import javax.swing.JPanel;
 import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
+import net.test.app.event.DegreeEvent;
 import net.test.app.event.LineThresholdEvent;
 import net.test.app.event.ScanStepEvent;
 import net.test.app.event.ZoomFactorEvent;
@@ -52,6 +54,7 @@ public class PreviewPanel extends JPanel {
     private int strokeSize = 4;
     private int areaSeparator = 15;
     private boolean anglePaint = false;
+    private int degree = 45;
 
     public static int SCAN_STEP = 1;
     public static int LINE_THRESHOLD = 2;
@@ -59,6 +62,7 @@ public class PreviewPanel extends JPanel {
     public static int MIN_AREA_SIZE = 1;
     public static int STROKE_SIZE = 4;
     public static int AREA_SEPARATOR = 15;
+    public static int DEGREE = 45;
 
     private boolean ENABLE_RENDERING_HINTS = false;
     
@@ -137,22 +141,21 @@ public class PreviewPanel extends JPanel {
         ImageScanner scanner = new ImageScanner(strategy, pixels, width, height);
         ScanResult results;
         if (anglePaint) {
-            results = scanner.angleScanImage(context);
-            System.out.println("Here");
+            results = scanner.angleScanImage(context, degree);
         } else {
             results = scanner.scanImage(context);
         }
-        System.out.println(anglePaint);
+        
         g.setColor(Color.RED);
 
         results.getVerticalLines().stream().forEach((l) -> {
-            g.drawLine(zoom * l.p1.x + zoom * width, zoom * l.p1.y, zoom * l.p2.x + zoom * width, zoom * l.p2.y);
+            g.draw(new Line2D.Double(zoom * l.p1.x + zoom * width, zoom * l.p1.y, zoom * l.p2.x + zoom * width, zoom * l.p2.y));
         });
 
         g.setColor(Color.ORANGE);
 
         results.getHorizontalLines().stream().forEach((l) -> {
-            g.drawLine(zoom * l.p1.x + zoom * width, zoom * l.p1.y, zoom * l.p2.x + zoom * width, zoom * l.p2.y);
+            g.draw(new Line2D.Double(zoom * l.p1.x + zoom * width, zoom * l.p1.y, zoom * l.p2.x + zoom * width, zoom * l.p2.y));
         });
 
         g.setStroke(new BasicStroke(strokeSize));
@@ -170,15 +173,15 @@ public class PreviewPanel extends JPanel {
                     Line l = areaLines.get(i);
 
                     if (i == 0 || i == areaLines.size() - 1) {
-                        g.drawLine(zoom * width + zoom * l.p1.x, zoom * height + zoom * l.p1.y,
-                                zoom * width + zoom * l.p2.x, zoom * height + zoom * l.p2.y);
+                        g.draw(new Line2D.Double(zoom * width + zoom * l.p1.x, zoom * height + zoom * l.p1.y,
+                                zoom * width + zoom * l.p2.x, zoom * height + zoom * l.p2.y));
                     }
 
                     if (null != p) {
-                        g.drawLine(zoom * width + zoom * p.p1.x, zoom * height + zoom * p.p1.y,
-                                zoom * width + zoom * l.p1.x, zoom * height + zoom * l.p1.y);
-                        g.drawLine(zoom * width + zoom * p.p2.x, zoom * height + zoom * p.p2.y,
-                                zoom * width + zoom * l.p2.x, zoom * height + zoom * l.p2.y);
+                        g.draw(new Line2D.Double(zoom * width + zoom * p.p1.x, zoom * height + zoom * p.p1.y,
+                                zoom * width + zoom * l.p1.x, zoom * height + zoom * l.p1.y));
+                        g.draw(new Line2D.Double(zoom * width + zoom * p.p2.x, zoom * height + zoom * p.p2.y,
+                                zoom * width + zoom * l.p2.x, zoom * height + zoom * l.p2.y));
                     }
                     p = l;
                 }
@@ -194,6 +197,7 @@ public class PreviewPanel extends JPanel {
     private Object strokeSizeSubscriber;
     private Object areaSeparatorSubscriber;
     private Object anglePaintSubscriber;
+    private Object degreeSubscriber;
 
     protected final void subscribeEvents() {
 
@@ -265,6 +269,15 @@ public class PreviewPanel extends JPanel {
             @Override
             public void onEvent(Event event) {
                 anglePaint = ((AngleScanEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        degreeSubscriber = EventUtil.subscribe(DegreeEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                degree = ((DegreeEvent) event).getValue();
                 repaint();
             }
         });

@@ -59,7 +59,7 @@ public class Area {
         
         for (Line l : lines) {
             boolean skip = false;
-            if (null != current && current.getIntercept() == l.getIntercept()) {
+            if (null != current && Math.abs(current.getIntercept() - l.getIntercept()) < 1) {
 
                 if (current.p1.x > l.p2.x && current.p1.y > l.p2.y) {
                     current.p1.y = l.p1.y;
@@ -83,7 +83,7 @@ public class Area {
     
     
     private void verticalHorizontalSort() {
-        lines.sort((Line o1, Line o2) -> o1.p1.x - o2.p1.x);
+        lines.sort((Line o1, Line o2) -> (int)o1.p1.x - (int)o2.p1.x);
 
         List<Line> filtered = new ArrayList();
         Line current = null;

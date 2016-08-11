@@ -37,16 +37,14 @@ public class DefaultScanStrategy implements ScanStrategy {
         List<Line> horizontal = scanHorizontally(context);
         List<Line> intersections = scanIntersections(horizontal, vertical);
         List<Area> areas = restoreAreas(intersections);
-        System.out.println("Bad scan");
         return new ScanResult(areas, vertical, horizontal);
     }
     
-    public ScanResult angleScanImage(Context context) {
-        List<Line> minor = scannTopLeftToBottomRight(context);
-        List<Line> major = scannTopRightToLeftBottom(context);
+    public ScanResult angleScanImage(Context context, int degree) {
+        List<Line> minor = scannMinor(context, degree);
+        List<Line> major = scannMajor(context, degree);
         List<Line> intersections = scanIntersections(major, minor);
         List<Area> areas = restoreAreas(intersections);
-        System.out.println("Good scan");
         return new ScanResult(areas, minor, major);
     }
     
@@ -116,12 +114,12 @@ public class DefaultScanStrategy implements ScanStrategy {
         return Util.scannHorizontally(0, height, width, context.getScanStep(), context);
     }
     
-    public final List<Line> scannTopLeftToBottomRight(Context context) {
-        return Util.scannTopLeftToBottomRight(0, width, height, context.getScanStep(), context);
+    public final List<Line> scannMinor(Context context, int degree) {
+        return Util.scannMinor(0, width, height, context.getScanStep(), context,  Util.slope(width, height, degree));
     }
     
-    public final List<Line> scannTopRightToLeftBottom(Context context) {
-        return Util.scannTopRightToLeftBottom(0, width, height, context.getScanStep(), context);
+    public final List<Line> scannMajor(Context context, int degree) {
+        return Util.scannMajor(0, width, height, context.getScanStep(), context, Util.slope(width, height, degree));
     }
     
     public final List<Line> scanIntersections(List<Line> horizontal, List<Line> vertical) {

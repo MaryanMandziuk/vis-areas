@@ -8,6 +8,7 @@ package net.test;
 
 import net.test.core.Line;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public final class Util {
 
                 if (value > colorThreshold && h1 > 0) { // we had a segment legnth
                     if (j - h1 > lineThreshold) {
-                        Line l = new Line(new Point(i, h1), new Point(i, j));
+                        Line l = new Line(new Point.Double(i, h1), new Point.Double(i, j));
                         result.add(l);
                     }
 
@@ -99,7 +100,7 @@ public final class Util {
 
                 if (value > colorThreshold && w1 > 0) { // we had segment legnth
                     if (i - w1 > lineThreshold) {
-                        Line l = new Line(new Point(w1, j), new Point(i, j));
+                        Line l = new Line(new Point.Double(w1, j), new Point.Double(i, j));
                         result.add(l);
                     }
                     w1 = -1;
@@ -113,8 +114,8 @@ public final class Util {
     }
     
     
-    public static List<Line> scannTopLeftToBottomRight(int offset, int width, int height, int scanStep,
-            Context context) {
+  public static List<Line> scannMajor(int offset, int width, int height, int scanStep,
+            Context context, double slope) {
         
         int pixels[][] = context.getPixels();
         int colorThreshold = context.getColorThreshold();
@@ -122,85 +123,99 @@ public final class Util {
         
         List<Line> result = new ArrayList();
         
-        int c = 0;
-        int k = 0;
+        
         
         for (int i = offset; i < width; i += scanStep) {
-            
+            double c = 0;
+            double k = 0;
             int h1 = 0;
-            int pi = 0, pj = 0;
-            c = i;
-            k = (c < height - 1) ? c : height - 1;
+            double pi = 0, pj = 0;
             
-            for (int j = 0; j <= k; j += scanStep, i -= scanStep) {
+            for ( int z = i; k < height && z < width; z ++) {
+                
+                k = (k + slope < height - 1) ? k += slope : height - 1;
+                for (double j = c; j <= k; j ++) {
 
-                int value = 0xFF & pixels[i][j];
-                if (value > colorThreshold && h1 > 0) {
-                    
-                    if (h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i, j));
-                        result.add(l);
-                    }
+                    int value = 0xFF & pixels[z][(int)j];
+                    if (value > colorThreshold && h1 > 0) {
 
-                    h1 = 0;
-                } else if (value < colorThreshold && h1 > 0 && i == 0) {
-                    if (++h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i , j));
-                        result.add(l);
+                        if (h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi, j));
+                            
+                            result.add(l);
+                        }
+
+                        h1 = 0;
+                    } else if (value < colorThreshold && h1 > 0 && z == 0) {
+                        if (++h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  ((j-pj)/slope) + pi, j));
+                            result.add(l);
+                        }
+                    } else if (value < colorThreshold && h1 > 0) {
+                        h1++;
+                    }  else if (value < colorThreshold && h1 == 0 ) {
+                        h1++;
+                        
+                        pi =j/slope + i;
+                        
+                        pj = j;
                     }
-                } else if (value < colorThreshold && h1 > 0) {
-                    h1++;
-                }  else if (value < colorThreshold && h1 == 0 ) {
-                    h1++;
-                    pi = i;
-                    pj = j;
+                }
+                
+                c += slope;
+                if (c > k) {
+                    break;
                 }
             }
-            i = c;
         }
         
+        double c = 0;
         
-        for (int j = 1; j < height; j += scanStep) {
-            int h1 = 0;
-            int pi = 0, pj = 0;
-            c = j;
-            k = width - height;
-            if (k + c < 0) {
-                k = -c;
-            }
+        for (int i = scanStep -1; i < height; i += scanStep ) {
             
-            for(int i = width - 1; i >= c + k; i -= scanStep, j += scanStep) {
-                int value = 0xFF & pixels[i][j];
+            c = i + 1;
+            double k = c;
+            int h1 = 0;
+            double pi = 0, pj = 0;
+            for (int z = 0; k < height && z < width; z ++) {
+                
+                k = (k + slope < height -1) ? k += slope : height - 1;
+                for(double j = c; (int) j <= k && j < height; j ++) {
+                    int value = 0xFF & pixels[z][(int)j];
 
-                if (value > colorThreshold && h1 > 0) {
-                    if (h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i, j));
-                        result.add(l);
-                    }
+                    if (value > colorThreshold && h1 > 0) {
+                        if (h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  ((j-pj)/slope) + pi, j));
+                            result.add(l);
+                        }
 
-                    h1 = 0;
-                } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
-                    if (++h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i , j));
-                        result.add(l);
-                    }  
-                } else if (value < colorThreshold && h1 > 0) {
-                    h1++;
-                } else if (value < colorThreshold && h1 == 0 ) {
-                    h1++;
-                    pi = i;
-                    pj = j;
-                } 
+                        h1 = 0;
+                    } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
+                        if (++h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi , j));
+                            result.add(l);
+                        }  
+                    } else if (value < colorThreshold && h1 > 0) {
+                        h1++;
+                    } else if (value < colorThreshold && h1 == 0 ) {
+                        h1++;
+                        pi = ((j-i)/slope) -1;
+                        pj = j;
+                    } 
+                }
+                c += slope;
+                if (c > k ) {
+                    break;
+                }
             }
-            j = c;
         }
         return result;
         
     }
     
     
-    public static List<Line> scannTopRightToLeftBottom(int offset, int width , int height, int scanStep,
-            Context context) {
+     public static List<Line> scannMinor(int offset, int width , int height, int scanStep,
+            Context context, double slope) {
         
         int pixels[][] = context.getPixels();
         int colorThreshold = context.getColorThreshold();
@@ -208,81 +223,93 @@ public final class Util {
         
         List<Line> result = new ArrayList();
         
-        int c = 0;
-        int k = 0;
+
         
         for (int i = width - 1; i >= offset; i -= scanStep) {
             
             int h1 = 0;
-            int pi = 0, pj = 0;
-            c = i;
-            if (k > height - 1) {
-                k = height - 1;
-            }
-            
-            for (int j = 0; j <= k; j += scanStep, i += scanStep) {
-                int value = 0xFF & pixels[i][j];
-                if (value > colorThreshold && h1 > 0) { 
-                    
-                    if (h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i, j));
-                        result.add(l);
-                    }
+            double pi = 0, pj = 0;
+            double c = 0;
+            double k = 0;
+            for (int z = i; k < height && z >= offset; z --) {
+                k = (k + slope < height - 1) ? k += slope: height - 1;
+                for (double j = c; j <= k; j ++) {
+                    int value = 0xFF & pixels[z][(int)j];
+                    if (value > colorThreshold && h1 > 0) { 
 
-                    h1 = 0;
-                } else if (value < colorThreshold && h1 > 0 && i == width - 1) {
-                    if (++h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i , j));
-                        result.add(l);
+                        if (h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(pi - ((j-pj)/slope), j));
+                            result.add(l);
+                        }
+
+                        h1 = 0;
+                    } else if (value < colorThreshold && h1 > 0 && z == width - 1) {
+                        if (++h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  pi - ((j-pj)/slope) , j));
+                            result.add(l);
+                        }
+                    } else if (value < colorThreshold && h1 > 0) {
+                        h1++;
+                    }  else if (value < colorThreshold && h1 == 0 ) {
+                        h1++;
+                        pi = (i -j/slope) +1;
+                        pj = j;
                     }
-                } else if (value < colorThreshold && h1 > 0) {
-                    h1++;
-                }  else if (value < colorThreshold && h1 == 0 ) {
-                    h1++;
-                    pi = i;
-                    pj = j;
+                }
+                c += slope;
+                if ( c > k ) {
+                    break;
                 }
             }
-            k += scanStep;
-            i = c;
         }
         
-        k = width - height + 1;
-        for (int j = 1; j < height; j += scanStep) {
+        double c = 0;
+        for (int i = offset; i < height; i += scanStep) {
             int h1 = 0;
-            int pi = 0, pj = 0;
-            c = j;
-            if (k > 0 ) {
-                k = 0;
-            }
-            
-            for(int i = offset; i < height - c + k; i += scanStep, j += scanStep) {
-                int value = 0xFF & pixels[i][j];
+            double pi = 0, pj = 0;
+            c = i +1;
+            double k = c;
+            for (int z = width - 1; k < height && z >= offset; z --) {
+                k = (k + slope < height - 1) ? k += slope : height - 1;
+                for(double j = c; j <= k && j < height; j ++) {
+                    int value = 0xFF & pixels[z][(int)j];
 
-                if (value > colorThreshold && h1 > 0) { 
-                    if (h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i, j ));
-                        result.add(l);
-                    }
+                    if (value > colorThreshold && h1 > 0) { 
+                        if (h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( pi- ((j - pj)/slope), j));
+                            result.add(l);
+                        }
 
-                    h1 = 0;
-                } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
-                    if (++h1 >= lineThreshold) {
-                        Line l = new Line(new Point(pi, pj), new Point(i , j));
-                        result.add(l);
-                    }  
-                } else if (value < colorThreshold && h1 > 0) {
-                    h1++;
-                } else if (value < colorThreshold && h1 == 0 ) {
-                    h1++;
-                    pi = i;
-                    pj = j;
-                } 
+                        h1 = 0;
+                    } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
+                        if (++h1 > lineThreshold) {
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(pi- ((j - pj)/slope) , j));
+                            result.add(l);
+                        }  
+                    } else if (value < colorThreshold && h1 > 0) {
+                        h1++;
+                    } else if (value < colorThreshold && h1 == 0 ) {
+                        h1++;
+                        pi = (width - (j-i)/slope) ;
+                        pj = j;
+                    } 
+                }
+                c += slope;
+                if (c > k) {
+                    break;
+                }
             }
-            j = c;
-            k+=scanStep;
         }
         return result;
         
     }
+    
+    public static double slope(int width, int height, int degree) {
+        int m = Math.min(width, height);
+        double stepByPoint = 45.0 / m;
+        double secondPoint = (degree / stepByPoint);
+        double tmp = (m/secondPoint)* 100;
+        double s = Math.round(tmp) ;
+        return s/100;
+}
 }

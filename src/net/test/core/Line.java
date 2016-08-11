@@ -6,7 +6,9 @@
  */
 package net.test.core;
 
-import java.awt.Point;
+import java.awt.geom.Point2D.Double;
+//import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,8 +19,8 @@ import java.util.List;
  */
 public final class Line {
 
-    public final Point p1;
-    public final Point p2;
+    public final Point2D.Double p1;
+    public final Point2D.Double p2;
     private double k;
     private double b;
     private final List<Line> intesections = new ArrayList();
@@ -28,20 +30,16 @@ public final class Line {
      * @param p1
      * @param p2 
      */
-    public Line(Point p1, Point p2) {
+    public Line(Point2D.Double p1, Point2D.Double p2) {
         this.p1 = p1;
         this.p2 = p2;
 
         if (!isVertical() && !isHorizontal()) {
-            k = ((double) p2.y - p1.y) / (p2.x - p1.x);
+            k = ( p2.y - p1.y) / (p2.x - p1.x);
             b = p1.y - k*p1.x;
         } else if (isHorizontal()) {
             b = p1.y;
         }
-    }
-
-    public void addIntersection(Line l) {
-        intesections.add(l);
     }
     
     public double getIntercept() {
@@ -52,6 +50,10 @@ public final class Line {
         return k;
     }
     
+    public void addIntersection(Line l) {
+        intesections.add(l);
+    }
+
     public boolean isVertical() {
         return p1.x == p2.x;
     }
@@ -59,7 +61,7 @@ public final class Line {
     public boolean isHorizontal() {
         return p1.y == p2.y;
     }
-
+    
     public boolean isMajor() {
         return p1.x < p2.x && p1.y < p2.y; 
     }
@@ -68,12 +70,16 @@ public final class Line {
         return p1.x > p2.x && p1.y < p2.y;
     }
     
+//    public boolean is45() {
+//        return Math.abs(this.k) == 1.0;
+//    }
+    
     public List<Line> getIntersections() {
         return Collections.unmodifiableList(intesections);
     }
 
-    public Point getIntersection(Line line) {
-        Point result = null;
+    public Double getIntersection(Line line) {
+        Point2D.Double result = null;
         
         if ((isVertical() && line.isVertical())
                 || (isHorizontal() && line.isHorizontal())) {
@@ -81,66 +87,66 @@ public final class Line {
         } else if (isVertical() && line.isHorizontal()
                 && (p1.x >= line.p1.x && p1.x <= line.p2.x)
                 && (line.p1.y >= p1.y && line.p1.y <= p2.y)) {
-            result = new Point(p1.x, line.p1.y);
+            result = new Point2D.Double(p1.x, line.p1.y);
         } else if (isHorizontal() && line.isVertical()
                 && (line.p1.x >= p1.x && line.p1.x <= p2.x)
                 && (p1.y >= line.p1.y && p1.y <= line.p2.y)) {
-            result = new Point(line.p1.x, p1.y);
+            result = new Point2D.Double(line.p1.x, p1.y);
         } else if (isVertical() && line.isMajor()) {
-            double y = line.k * p1.x + line.b;
+            double y = line.getSlope() * p1.x + line.getIntercept();
             if (p1.y <= y && p2.y >= y 
                     && line.p1.x <= p1.x && line.p2.x >= p1.x
                     && line.p1.y <= y && line.p2.y >= y) {
-                result = new Point(p1.x, (int)y);
+                result = new Point2D.Double(p1.x, y);
             }
         } else if (isMajor() && line.isVertical()) {
             double y = k * line.p1.x + b;
             if (line.p1.y <= y && line.p2.y >= y 
                     && p1.x <= line.p1.x && p2.x >= line.p1.x
                     && p1.y <= y && p2.y >= y) {
-                result = new Point(line.p1.x, (int)y);
+                result = new Point2D.Double(line.p1.x, y);
             }
         } else if (isHorizontal() && line.isMajor()) {
             double x = (line.b - p1.y) / -line.k;
             if (p1.x <= x && p2.x >= x
                     && line.p1.x <= x && line.p2.x >= x
                     && line.p1.y <= p1.y && line.p2.y >= p1.y) {
-                result = new Point((int)x, p1.y);
+                result = new Point2D.Double(x, p1.y);
             }
         } else if (isMajor() && line.isHorizontal()) {
             double x = (b - line.p1.y) / -k;
             if (line.p1.x <= x && line.p2.x >= x
                     && p1.x <= x && p2.x >= x
                     && p1.y <= line.p1.y && p2.y >= line.p1.y) {
-                result = new Point((int)x, line.p1.y);
+                result = new Point2D.Double(x, line.p1.y);
             }
         } else if (isVertical() && line.isMinor()) {
-            double y = line.k * p1.x + line.b;
+            double y = line.getSlope() * p1.x + line.getIntercept();
             if (p1.y <= y && p2.y >= y 
                     && line.p1.x >= p1.x && line.p2.x <= p1.x
                     && line.p1.y <= y && line.p2.y >= y) {
-                result = new Point(p1.x, (int)y);
+                result = new Point2D.Double(p1.x, y);
             }
         } else if (isMinor() && line.isVertical()) {
             double y = k * line.p1.x + b;
             if (line.p1.y <= y && line.p2.y >= y 
                     && p1.x >= line.p1.x && p2.x <= line.p1.x
                     && p1.y <= y && p2.y >= y) {
-                result = new Point(line.p1.x, (int)y);
+                result = new Point2D.Double(line.p1.x, y);
             }
         } else if (isHorizontal() && line.isMinor()) {
             double x = (line.b - p1.y) / -line.k;
             if (p1.x <= x && p2.x >= x
                     && line.p1.x >= x && line.p2.x <= x
                     && line.p1.y <= p1.y && line.p2.y >= p1.y) {
-                result = new Point((int)x, p1.y);
+                result = new Point2D.Double(x, p1.y);
             }
         } else if (isMinor() && line.isHorizontal()) {
             double x = (b - line.p1.y) / -k;
             if (line.p1.x <= x && line.p2.x >= x
                     && p1.x >= x && p2.x <= x
                     && p1.y <= line.p1.y && p2.y >= line.p1.y) {
-                result = new Point((int)x, line.p1.y);
+                result = new Point2D.Double(x, line.p1.y);
             }
         } else if (k != line.k) {
             double x = (this.b - line.b) / (line.k - this.k);
@@ -151,14 +157,14 @@ public final class Line {
                     && p1.y <= y && p2.y >= y
                     && line.p1.x <= x && line.p2.x >= x
                     && line.p1.y <= y && line.p2.y >= y) {
-                result = new Point((int)x, (int)y);
+                result = new Point2D.Double(x, y);
             } else if (
 //                    isMinor() && isMinor()
                      p1.x >= x && p2.x <= x
                     && p1.y <= y && p2.y >= y
                     && line.p1.x >= x && line.p2.x <= x
                     && line.p1.y <= y && line.p2.y >= y) {
-                result = new Point((int)x, (int)y);
+                result = new Point2D.Double(x, y);
             }
             else if (
 //                    isMajor() && line.isMinor()
@@ -168,7 +174,7 @@ public final class Line {
                     && line.p1.y <= y && line.p2.y >= y
                     ) {
 
-                result = new Point((int)x, (int)y);
+                result = new Point2D.Double(x, y);
             } else if (
 //                    isMinor() && line.isMajor()
                     p1.x >= x && p2.x <= x
@@ -176,13 +182,17 @@ public final class Line {
                     && line.p1.x <= x && line.p2.x >= x
                     && line.p1.y <= y && line.p2.y >= y
                     ) {
-                result = new Point((int)x, (int)y);
+                result = new Point2D.Double(x, y);
             }
         }
         return result;
     }
+    
+
 
     public boolean isIntersect(Line line) {
         return (null != getIntersection(line));
     }
+    
+
 }

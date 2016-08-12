@@ -114,7 +114,7 @@ public final class Util {
     }
     
     
-  public static List<Line> scannMajor(int offset, int width, int height, int scanStep,
+    public static List<Line> scannMajor(int offset, int width, int height, int scanStep,
             Context context, double slope) {
         
         int pixels[][] = context.getPixels();
@@ -124,60 +124,50 @@ public final class Util {
         List<Line> result = new ArrayList();
         
         
-        
         for (int i = offset; i < width; i += scanStep) {
             double c = 0;
             double k = 0;
+            
             int h1 = 0;
             double pi = 0, pj = 0;
             
-            for ( int z = i; k < height && z < width; z ++) {
+            for ( int z = i; k < height && z < width && c <= k; z ++) {
                 
                 k = (k + slope < height - 1) ? k += slope : height - 1;
                 for (double j = c; j <= k; j ++) {
-
                     int value = 0xFF & pixels[z][(int)j];
                     if (value > colorThreshold && h1 > 0) {
-
                         if (h1 > lineThreshold) {
                             Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi, j));
-                            
                             result.add(l);
                         }
-
                         h1 = 0;
-                    } else if (value < colorThreshold && h1 > 0 && z == 0) {
+                    } else if (value < colorThreshold && h1 > 0 && j >= height - 2 || z == width -1) {
                         if (++h1 > lineThreshold) {
                             Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  ((j-pj)/slope) + pi, j));
                             result.add(l);
                         }
+                        h1 = 0;
                     } else if (value < colorThreshold && h1 > 0) {
                         h1++;
                     }  else if (value < colorThreshold && h1 == 0 ) {
-                        h1++;
-                        
+                        h1++;     
                         pi =j/slope + i;
-                        
                         pj = j;
                     }
                 }
-                
-                c += slope;
-                if (c > k) {
-                    break;
-                }
+                c += slope;  
             }
         }
         
         double c = 0;
-        
         for (int i = scanStep -1; i < height; i += scanStep ) {
             
             c = i + 1;
             double k = c;
             int h1 = 0;
             double pi = 0, pj = 0;
-            for (int z = 0; k < height && z < width; z ++) {
+            for (int z = 0; k < height && z < width && c <= k; z ++) {
                 
                 k = (k + slope < height -1) ? k += slope : height - 1;
                 for(double j = c; (int) j <= k && j < height; j ++) {
@@ -188,13 +178,13 @@ public final class Util {
                             Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  ((j-pj)/slope) + pi, j));
                             result.add(l);
                         }
-
                         h1 = 0;
-                    } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
+                    } else if (value < colorThreshold && h1 > 0 && j >= height - 2) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi , j));
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi , height - 1));
                             result.add(l);
                         }  
+                        h1 = 0;
                     } else if (value < colorThreshold && h1 > 0) {
                         h1++;
                     } else if (value < colorThreshold && h1 == 0 ) {
@@ -204,9 +194,6 @@ public final class Util {
                     } 
                 }
                 c += slope;
-                if (c > k ) {
-                    break;
-                }
             }
         }
         return result;
@@ -214,7 +201,7 @@ public final class Util {
     }
     
     
-     public static List<Line> scannMinor(int offset, int width , int height, int scanStep,
+    public static List<Line> scannMinor(int offset, int width , int height, int scanStep,
             Context context, double slope) {
         
         int pixels[][] = context.getPixels();
@@ -223,7 +210,6 @@ public final class Util {
         
         List<Line> result = new ArrayList();
         
-
         
         for (int i = width - 1; i >= offset; i -= scanStep) {
             
@@ -231,7 +217,7 @@ public final class Util {
             double pi = 0, pj = 0;
             double c = 0;
             double k = 0;
-            for (int z = i; k < height && z >= offset; z --) {
+            for (int z = i; k < height && z >= offset && c <= k; z --) {
                 k = (k + slope < height - 1) ? k += slope: height - 1;
                 for (double j = c; j <= k; j ++) {
                     int value = 0xFF & pixels[z][(int)j];
@@ -243,11 +229,12 @@ public final class Util {
                         }
 
                         h1 = 0;
-                    } else if (value < colorThreshold && h1 > 0 && z == width - 1) {
+                    } else if (value < colorThreshold && h1 > 0 && j >= height - 2 || z == 0) {
                         if (++h1 > lineThreshold) {
                             Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  pi - ((j-pj)/slope) , j));
                             result.add(l);
                         }
+                        h1 = 0;
                     } else if (value < colorThreshold && h1 > 0) {
                         h1++;
                     }  else if (value < colorThreshold && h1 == 0 ) {
@@ -257,9 +244,6 @@ public final class Util {
                     }
                 }
                 c += slope;
-                if ( c > k ) {
-                    break;
-                }
             }
         }
         
@@ -267,9 +251,9 @@ public final class Util {
         for (int i = offset; i < height; i += scanStep) {
             int h1 = 0;
             double pi = 0, pj = 0;
-            c = i +1;
+            c = i + 1;
             double k = c;
-            for (int z = width - 1; k < height && z >= offset; z --) {
+            for (int z = width - 1; k < height && z >= offset && c <= k; z --) {
                 k = (k + slope < height - 1) ? k += slope : height - 1;
                 for(double j = c; j <= k && j < height; j ++) {
                     int value = 0xFF & pixels[z][(int)j];
@@ -279,13 +263,13 @@ public final class Util {
                             Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( pi- ((j - pj)/slope), j));
                             result.add(l);
                         }
-
                         h1 = 0;
-                    } else if (value < colorThreshold && h1 > 0 && j == height - 1) {
+                    } else if (value < colorThreshold && h1 > 0 && j >= height - 2) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(pi- ((j - pj)/slope) , j));
+                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(pi- ((j - pj)/slope) , height - 1));
                             result.add(l);
                         }  
+                        h1 = 0;
                     } else if (value < colorThreshold && h1 > 0) {
                         h1++;
                     } else if (value < colorThreshold && h1 == 0 ) {
@@ -295,21 +279,13 @@ public final class Util {
                     } 
                 }
                 c += slope;
-                if (c > k) {
-                    break;
-                }
             }
         }
-        return result;
-        
+        return result;    
     }
     
     public static double slope(int width, int height, int degree) {
         int m = Math.min(width, height);
-        double stepByPoint = 45.0 / m;
-        double secondPoint = (degree / stepByPoint);
-        double tmp = (m/secondPoint)* 100;
-        double s = Math.round(tmp) ;
-        return s/100;
-}
+        return (Math.round((m / (degree / (45.0 / m))) * 100)) / 100.0;
+    }
 }

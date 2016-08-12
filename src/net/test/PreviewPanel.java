@@ -70,8 +70,8 @@ public class PreviewPanel extends JPanel {
         super(true);
         subscribeEvents();
         try {
-            BufferedImage image = ImageIO.read(new File("images/image006.png"));
-            BufferedImage image2 = ImageIO.read(new File("images/image005.png"));
+            BufferedImage image = ImageIO.read(new File("images/Files/test06a.png"));
+            BufferedImage image2 = ImageIO.read(new File("images/Files/test06a.png"));
 
             width = image.getWidth();
             height = image.getHeight();

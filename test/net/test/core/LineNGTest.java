@@ -169,5 +169,33 @@ public class LineNGTest {
         assertTrue(line2.isHorizontal());
 
     }
+    
+    @Test
+    public void testSlopeIntercept() {
+        System.out.println("test: getSlope() getIntercept()");
+        Line line = new Line(new Point2D.Double(4, 1), new Point2D.Double(7, 4));
+        
+        assertEquals(line.getIntercept(), -3.0);
+        assertEquals(line.getSlope(), 1.0);
+        
+        line = new Line(new Point2D.Double(2, 1), new Point2D.Double(2, 5));
+        
+        assertTrue(line.isVertical());
+        assertEquals(line.getIntercept(), 0.0);
+        assertEquals(line.getSlope(), 0.0);
+        
+        line = new Line(new Point2D.Double(2, 1), new Point2D.Double(8, 1));
+        
+        assertTrue(line.isHorizontal());
+        assertEquals(line.getIntercept(), 1.0);
+        assertEquals(line.getSlope(), .0);
+        
+        
+        line = new Line(new Point2D.Double(1, 1), new Point2D.Double(3, 5));
+        
+        assertEquals(line.getIntercept(), -1.0);
+        assertEquals(line.getSlope(), 2.0);
+        
+    }
 
 }

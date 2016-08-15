@@ -134,8 +134,8 @@ public final class Util {
             for ( int z = i; k < height && z < width && c <= k; z ++) {
                 
                 k = (k + slope < height - 1) ? k += slope : height - 1;
-                for (double j = c; j <= k; j ++) {
-                    int value = 0xFF & pixels[z][(int)j];
+                for (double j = c; j < k; j ++) {
+                    int value = 0xFF & pixels[z][(int)j];  
                     if (value > colorThreshold && h1 > 0) {
                         if (h1 > lineThreshold) {
                             Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi, j));
@@ -170,7 +170,7 @@ public final class Util {
             for (int z = 0; k < height && z < width && c <= k; z ++) {
                 
                 k = (k + slope < height -1) ? k += slope : height - 1;
-                for(double j = c; (int) j <= k && j < height; j ++) {
+                for(double j = c; (int) j < k && j < height; j ++) {
                     int value = 0xFF & pixels[z][(int)j];
 
                     if (value > colorThreshold && h1 > 0) {
@@ -219,7 +219,7 @@ public final class Util {
             double k = 0;
             for (int z = i; k < height && z >= offset && c <= k; z --) {
                 k = (k + slope < height - 1) ? k += slope: height - 1;
-                for (double j = c; j <= k; j ++) {
+                for (double j = c; j < k; j ++) {
                     int value = 0xFF & pixels[z][(int)j];
                     if (value > colorThreshold && h1 > 0) { 
 
@@ -255,7 +255,7 @@ public final class Util {
             double k = c;
             for (int z = width - 1; k < height && z >= offset && c <= k; z --) {
                 k = (k + slope < height - 1) ? k += slope : height - 1;
-                for(double j = c; j <= k && j < height; j ++) {
+                for(double j = c; j < k && j < height; j ++) {
                     int value = 0xFF & pixels[z][(int)j];
 
                     if (value > colorThreshold && h1 > 0) { 

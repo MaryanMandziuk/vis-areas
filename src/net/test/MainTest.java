@@ -32,9 +32,11 @@ public class MainTest {
         private final int colorThreshold = 80;  
         public int scanStep;
         public int degree;
-        public MainTest(File original, File adapted, int id, int scanStep, int degree) {
+        public boolean anglePaint;
+        public MainTest(File original, File adapted, int id, int scanStep, int degree, boolean anglePaint) {
             this.scanStep = scanStep;
             this.degree = degree;
+            this.anglePaint = anglePaint;
             try {
                 BufferedImage image = ImageIO.read(adapted);
                 BufferedImage image2 = ImageIO.read(original);
@@ -104,7 +106,13 @@ public class MainTest {
             context.setScanStep(scanStep);
             DefaultScanStrategy strategy = new DefaultScanStrategy(pixels, width, height);
             ImageScanner scanner = new ImageScanner(strategy, pixels, width, height);
-            ScanResult results = scanner.angleScanImage(context, degree);
+//            ScanResult results = scanner.angleScanImage(context, degree);
+            ScanResult results;
+            if (anglePaint) {
+                results = scanner.angleScanImage(context, degree);
+            } else {
+                results = scanner.scanImage(context);
+            }
                    
 
             

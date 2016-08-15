@@ -22,10 +22,11 @@ public class MainTestNGTest {
     private int id;
     private int scanStep;
     private int degree;
+    private boolean anglePaint;
     public MainTestNGTest() {
         
     }
-    public MainTestNGTest(File adapted, File original, int id, int scanStep, int degree) {
+    public MainTestNGTest(File adapted, File original, int id, int scanStep, int degree, boolean anglePaint) {
         if(adapted != null && original != null) {
             this.adapted = adapted;
             this.original = original;
@@ -39,6 +40,7 @@ public class MainTestNGTest {
         this.id = id;
         this.scanStep = scanStep;
         this.degree = degree;
+        this.anglePaint = anglePaint;
     }
 
     
@@ -49,8 +51,11 @@ public class MainTestNGTest {
     @Test
     public void testMain() throws IOException {
 
-        MainTest ob = new MainTest(this.original, this.adapted, this.id, this.scanStep, this.degree);
+        MainTest ob = new MainTest(this.original, this.adapted, this.id, this.scanStep, this.degree, this.anglePaint);
         String s = "scan" + this.scanStep + "degree" + this.degree;
+        if (!this.anglePaint) {
+            s = "scan" + this.scanStep + "HorizontalVertical";
+        }
         File testFolder = new File("testFolder");
         testFolder.mkdir();
         File newTestFolder = new File(testFolder + File.separator + s);
@@ -86,9 +91,17 @@ public class MainTestNGTest {
                         break;
                     }
                     if (!im_original.exists()) {
-                        result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg);
+                        if (step == numberSteps) {
+                           result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, true); 
+                        } else {
+                            result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, false);
+                        }
                     } else {
-                        result[i + d] = new MainTestNGTest(im_adapted, im_original, i + 1, step, deg);
+                        if (step == numberSteps) {
+                           result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, true); 
+                        } else {
+                            result[i + d] = new MainTestNGTest(im_adapted, im_original, i + 1, step, deg, false);
+                        }
                     }
                     
                 }

@@ -92,15 +92,15 @@ public class MainTestNGTest {
                     }
                     if (!im_original.exists()) {
                         if (step == numberSteps) {
-                           result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, true); 
+                           result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, false); 
                         } else {
-                            result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, false);
+                            result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, true);
                         }
                     } else {
                         if (step == numberSteps) {
-                           result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, true); 
+                           result[i + d] = new MainTestNGTest(im_adapted, null, i + 1, step, deg, false); 
                         } else {
-                            result[i + d] = new MainTestNGTest(im_adapted, im_original, i + 1, step, deg, false);
+                            result[i + d] = new MainTestNGTest(im_adapted, im_original, i + 1, step, deg, true);
                         }
                     }
                     

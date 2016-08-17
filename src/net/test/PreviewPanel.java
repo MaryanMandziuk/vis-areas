@@ -70,8 +70,8 @@ public class PreviewPanel extends JPanel {
         super(true);
         subscribeEvents();
         try {
-            BufferedImage image = ImageIO.read(new File("images/Files/test06a.png"));
-            BufferedImage image2 = ImageIO.read(new File("images/Files/test06a.png"));
+            BufferedImage image = ImageIO.read(new File("images/image006.png"));
+            BufferedImage image2 = ImageIO.read(new File("images/image005.png"));
 
             width = image.getWidth();
             height = image.getHeight();
@@ -96,6 +96,7 @@ public class PreviewPanel extends JPanel {
                     //pixels[i][j] = 0xFF000000 | gray << 16 | gray << 8 | gray;
                 }
             }
+            System.out.println("width=" + pixels.length + " height=" + pixels[0].length);
         } catch (Exception e) {
             e.printStackTrace();
         }

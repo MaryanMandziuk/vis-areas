@@ -8,7 +8,6 @@ package net.test;
 
 import net.test.core.Line;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,13 +137,13 @@ public final class Util {
                     int value = 0xFF & pixels[z][(int)j];  
                     if (value > colorThreshold && h1 > 0) {
                         if (h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi, j));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double( ((j-pj)/slope) + pi, j));
                             result.add(l);
                         }
                         h1 = 0;
                     } else if (value < colorThreshold && h1 > 0 && j >= height - 2 || z == width -1) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  ((j-pj)/slope) + pi, j));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(  ((j-pj)/slope) + pi, j));
                             result.add(l);
                         }
                         h1 = 0;
@@ -175,13 +174,13 @@ public final class Util {
 
                     if (value > colorThreshold && h1 > 0) {
                         if (h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  ((j-pj)/slope) + pi, j));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(  ((j-pj)/slope) + pi, j));
                             result.add(l);
                         }
                         h1 = 0;
                     } else if (value < colorThreshold && h1 > 0 && j >= height - 2) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( ((j-pj)/slope) + pi , height - 1));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double( ((j-pj)/slope) + pi , height - 1));
                             result.add(l);
                         }  
                         h1 = 0;
@@ -224,14 +223,14 @@ public final class Util {
                     if (value > colorThreshold && h1 > 0) { 
 
                         if (h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(pi - ((j-pj)/slope), j));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(pi - ((j-pj)/slope), j));
                             result.add(l);
                         }
 
                         h1 = 0;
                     } else if (value < colorThreshold && h1 > 0 && j >= height - 2 || z == 0) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(  pi - ((j-pj)/slope) , j));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(  pi - ((j-pj)/slope) , j));
                             result.add(l);
                         }
                         h1 = 0;
@@ -239,7 +238,7 @@ public final class Util {
                         h1++;
                     }  else if (value < colorThreshold && h1 == 0 ) {
                         h1++;
-                        pi = (i -j/slope) +1;
+                        pi = (i -j/slope) ;
                         pj = j;
                     }
                 }
@@ -260,13 +259,13 @@ public final class Util {
 
                     if (value > colorThreshold && h1 > 0) { 
                         if (h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double( pi- ((j - pj)/slope), j));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double( pi- ((j - pj)/slope), j));
                             result.add(l);
                         }
                         h1 = 0;
                     } else if (value < colorThreshold && h1 > 0 && j >= height - 2) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point2D.Double(pi, pj), new Point2D.Double(pi- ((j - pj)/slope) , height - 1));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(pi- ((j - pj)/slope) , height - 1));
                             result.add(l);
                         }  
                         h1 = 0;

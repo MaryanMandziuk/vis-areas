@@ -6,8 +6,7 @@
  */
 package net.test.core;
 
-import java.awt.geom.Point2D.Double;
-//import java.awt.Point;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,7 +77,7 @@ public final class Line {
         return Collections.unmodifiableList(intesections);
     }
 
-    public Double getIntersection(Line line) {
+    public Point2D.Double getIntersection(Line line) {
         Point2D.Double result = null;
         
         if ((isVertical() && line.isVertical())

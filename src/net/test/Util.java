@@ -151,7 +151,7 @@ public final class Util {
                         h1++;
                     }  else if (value < colorThreshold && h1 == 0 ) {
                         h1++;     
-                        pi =j/slope + i;
+                        pi = j/slope + i;
                         pj = j;
                     }
                 }
@@ -180,7 +180,7 @@ public final class Util {
                         h1 = 0;
                     } else if (value < colorThreshold && h1 > 0 && j >= height - 2) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point.Double(pi, pj), new Point.Double( ((j-pj)/slope) + pi , height - 1));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double( ((height - 1 - pj)/slope) + pi , height - 1));
                             result.add(l);
                         }  
                         h1 = 0;
@@ -188,7 +188,7 @@ public final class Util {
                         h1++;
                     } else if (value < colorThreshold && h1 == 0 ) {
                         h1++;
-                        pi = ((j-i)/slope) -1;
+                        pi = ((j-i)/slope) - 1;
                         pj = j;
                     } 
                 }
@@ -265,7 +265,7 @@ public final class Util {
                         h1 = 0;
                     } else if (value < colorThreshold && h1 > 0 && j >= height - 2) {
                         if (++h1 > lineThreshold) {
-                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(pi- ((j - pj)/slope) , height - 1));
+                            Line l = new Line(new Point.Double(pi, pj), new Point.Double(pi- (( height - 1 - pj)/slope) , height - 1));
                             result.add(l);
                         }  
                         h1 = 0;
@@ -273,7 +273,7 @@ public final class Util {
                         h1++;
                     } else if (value < colorThreshold && h1 == 0 ) {
                         h1++;
-                        pi = (width - (j-i)/slope) ;
+                        pi = (width - (j-i)/slope);
                         pj = j;
                     } 
                 }

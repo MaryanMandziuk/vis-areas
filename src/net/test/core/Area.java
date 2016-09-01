@@ -51,16 +51,16 @@ public class Area {
         }
     }
     
+ 
     private void angleSort() {
-        lines.sort((Line o1, Line o2) -> (int)o1.getIntercept() - (int)o2.getIntercept());
+        lines.sort((Line o1, Line o2) -> Double.compare(o1.getIntercept(), o2.getIntercept()));
 
         List<Line> filtered = new ArrayList();
         Line current = null;
         
         for (Line l : lines) {
             boolean skip = false;
-            if (null != current && Math.abs(current.getIntercept() - l.getIntercept()) < 1) {
-
+            if (null != current && Math.abs(current.getIntercept() - l.getIntercept()) <0.01) {
                 if (current.p1.x > l.p2.x && current.p1.y > l.p2.y) {
                     current.p1.y = l.p1.y;
                     current.p1.x = l.p1.x;

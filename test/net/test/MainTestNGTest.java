@@ -73,7 +73,7 @@ public class MainTestNGTest {
     @Factory
     public Object[] factoryMethod() {
         final int numberOfImages = 20 ;
-        final int numberSteps = 3;
+        final int numberSteps = 4; // each step is a new test folder with images
         Object[] result = new Object[numberSteps*numberOfImages];
 
             for(int step = 1; step < numberSteps + 1; step ++ ) {

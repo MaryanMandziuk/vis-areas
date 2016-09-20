@@ -11,10 +11,10 @@ import com.taunova.event.EventUtil;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -22,12 +22,15 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import net.test.PreviewPanel;
+import net.test.app.event.ActivateContrastUpEvent;
 import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
 import net.test.app.event.DegreeEvent;
+import net.test.app.event.LayerStopEvent;
 import net.test.app.event.LineThresholdEvent;
 import net.test.app.event.MinAreaSizeEvent;
+import net.test.app.event.NoiseMultiplierEvent;
 import net.test.app.event.ScanStepEvent;
 import net.test.app.event.StrokeSizeEvent;
 import net.test.app.event.ZoomFactorEvent;
@@ -58,6 +61,8 @@ public class ToolsPane extends JPanel {
         JLabel strokeSizeLabel = new JLabel("Stroke size");
         JLabel areaSeparatorLabel = new JLabel("Area separator");
         JLabel degreeLabel = new JLabel("Degree");
+        JLabel noiseMultiplierLabel = new JLabel("Noise constant multiplier");
+        JLabel layerStopLabel = new JLabel("Layer stop value");
         
         JButton loadButton = new JButton("Open");
         
@@ -68,6 +73,22 @@ public class ToolsPane extends JPanel {
                 // select new image and let preview panel refresh
             }
         });
+        
+        
+        JCheckBox applyContrastUp = new JCheckBox("Apply ContrastUp");
+        applyContrastUp.setSelected(false);
+        
+        applyContrastUp.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JCheckBox s1 = (JCheckBox) e.getSource();
+                if (s1.isSelected()) {
+                    EventUtil.publish(new ActivateContrastUpEvent(s1.isSelected()));
+                } else {
+                    EventUtil.publish(new ActivateContrastUpEvent(false));
+                }
+            }
+        });
+    
         
         JRadioButton verticalHorizontalScan = new JRadioButton("Vertical and horizontal scan", true);
         JRadioButton angleScan = new JRadioButton("Angle scan", false);
@@ -253,6 +274,44 @@ public class ToolsPane extends JPanel {
                 }
             }
         });
+        
+        JSlider noiseMultiplierThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                100,
+                PreviewPanel.NOISE_MULTIPLIER);
+
+        noiseMultiplierThreshold.setPaintTicks(true);
+        noiseMultiplierThreshold.setMajorTickSpacing(10);
+        noiseMultiplierThreshold.setMinorTickSpacing(1);
+        noiseMultiplierThreshold.setPaintLabels(true);
+
+        noiseMultiplierThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new NoiseMultiplierEvent(s1.getValue()));
+                }
+            }
+        });
+        
+        JSlider layerStopThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                PreviewPanel.LAYERS,
+                PreviewPanel.LAYER_START);
+
+        layerStopThreshold.setPaintTicks(true);
+        layerStopThreshold.setMajorTickSpacing(1);
+        layerStopThreshold.setMinorTickSpacing(PreviewPanel.LAYERS);
+        layerStopThreshold.setPaintLabels(true);
+
+        layerStopThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new LayerStopEvent(s1.getValue()));
+                }
+            }
+        });
 
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
@@ -268,6 +327,8 @@ public class ToolsPane extends JPanel {
                         .addComponent(strokeSizeLabel)
                         .addComponent(areaSeparatorLabel)
                         .addComponent(degreeLabel)
+                        .addComponent(noiseMultiplierLabel)
+                        .addComponent(layerStopLabel)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addComponent(loadButton)
@@ -281,6 +342,9 @@ public class ToolsPane extends JPanel {
                         .addComponent(verticalHorizontalScan)
                         .addComponent(angleScan)
                         .addComponent(degreeThreshold)
+                        .addComponent(applyContrastUp)
+                        .addComponent(noiseMultiplierThreshold)
+                        .addComponent(layerStopThreshold)
                 )
         );
 
@@ -321,12 +385,22 @@ public class ToolsPane extends JPanel {
                         .addComponent(verticalHorizontalScan)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        
                         .addComponent(angleScan)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                         .addComponent(degreeLabel)
                         .addComponent(degreeThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(applyContrastUp)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(noiseMultiplierLabel)
+                        .addComponent(noiseMultiplierThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(layerStopLabel)
+                        .addComponent(layerStopThreshold)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)));
     }

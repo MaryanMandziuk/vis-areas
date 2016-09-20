@@ -8,6 +8,8 @@ package net.test;
 import com.taunova.event.Event;
 import com.taunova.event.EventUtil;
 import com.taunova.event.Listener;
+import inc.quality.Pyramid;
+import static inc.quality.Utils.applyContrastUP;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,14 +22,17 @@ import java.io.File;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import net.test.app.event.ActivateContrastUpEvent;
 import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
 import net.test.app.event.DegreeEvent;
+import net.test.app.event.LayerStopEvent;
 import net.test.app.event.LineThresholdEvent;
 import net.test.app.event.ScanStepEvent;
 import net.test.app.event.ZoomFactorEvent;
 import net.test.app.event.MinAreaSizeEvent;
+import net.test.app.event.NoiseMultiplierEvent;
 import net.test.app.event.StrokeSizeEvent;
 import net.test.core.Area;
 import net.test.core.Line;
@@ -43,9 +48,11 @@ public class PreviewPanel extends JPanel {
 
     private int[][] pixels;
     private int[][] pixels2;
+    private int[][] copyPixels;
+    
     private int width;
     private int height;
-
+    private Pyramid pyramid;
     private int zoom = ZOOM;
     private int scanStep = 1;
     private int lineThreshold = 2;
@@ -55,7 +62,11 @@ public class PreviewPanel extends JPanel {
     private int areaSeparator = 15;
     private boolean anglePaint = false;
     private int degree = 45;
+    private boolean activateContrastUp = false;
+    private int noiseMultiplier = 1;
+    private int layerStop = 1;
 
+    
     public static int SCAN_STEP = 1;
     public static int LINE_THRESHOLD = 2;
     public static int COLOR_THRESHOLD = 80;
@@ -63,40 +74,50 @@ public class PreviewPanel extends JPanel {
     public static int STROKE_SIZE = 4;
     public static int AREA_SEPARATOR = 15;
     public static int DEGREE = 45;
-
+    public static int NOISE_MULTIPLIER = 1;
+    public static int LAYER_START = 1;
+    public static int LAYERS = 1;
+    
+    
     private boolean ENABLE_RENDERING_HINTS = false;
+    
     
     public PreviewPanel() {
         super(true);
         subscribeEvents();
         try {
-            BufferedImage image = ImageIO.read(new File("images/image006.png"));
-            BufferedImage image2 = ImageIO.read(new File("images/image005.png"));
+            BufferedImage image = ImageIO.read(new File("images/test.jpg"));
+//            BufferedImage image2 = ImageIO.read(new File("images/image005.png"));
 
             width = image.getWidth();
             height = image.getHeight();
 
             pixels = new int[width][height];
             pixels2 = new int[width][height];
-
+            copyPixels = new int[width][height];
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
+
                     int rgb = image.getRGB(i, j);
                     int r = (rgb >> 16) & 0xFF;
                     int g = (rgb >> 8) & 0xFF;
                     int b = (rgb & 0xFF);
-
-                    pixels[i][j] = rgb;
-
-                    if (null != image2) {
-                        pixels2[i][j] = image2.getRGB(i, j);
-                    }
+                    int gray = (r + b + g) / 3;
+                    pixels[i][j] = (gray << 16) + (gray << 8) + gray;
+                    copyPixels[i][j] = pixels[i][j];
+//                    pixels[i][j] = gray;
+                    pixels2[i][j] = rgb;
+                    
+                    
                     //0.21 R + 0.72 G + 0.07 B
                     //int gray = ((int) (0.21 * r + 0.72 * g + 0.07 * b) & 0xFF);
                     //pixels[i][j] = 0xFF000000 | gray << 16 | gray << 8 | gray;
                 }
             }
-            System.out.println("width=" + pixels.length + " height=" + pixels[0].length);
+            pyramid = new Pyramid(pixels);
+            pyramid.proccessPyramid();
+            LAYERS = pyramid.layers.size() - 1;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -118,10 +139,33 @@ public class PreviewPanel extends JPanel {
             g.setRenderingHints(qualityHints);
         }
         
+        if (activateContrastUp) {
+            for (int i = 0; i < pixels.length; i++) {
+                for (int j = 0; j < pixels[0].length; j++) {
+                    pixels[i][j] = copyPixels[i][j];
+                }
+            }
+            applyContrastUP(pyramid, pixels, noiseMultiplier, layerStop);
+            
+            for (int i = 0; i < pixels.length; i++) {
+                for (int j = 0; j < pixels[0].length; j++) {
+                    int c = pixels[i][j];
+                    pixels[i][j] = ( c + (c << 8) + (c << 16));
+                }
+            }   
+        } else {
+            for (int i = 0; i < pixels.length; i++) {
+                for (int j = 0; j < pixels[0].length; j++) {
+                    pixels[i][j] = pixels2[i][j];
+                }
+            }
+        }
+        
         // zoom functionality
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 int value = pixels[i][j];
+                
                 g.setColor(new Color(value));
                 g.fillRect(i * zoom, j * zoom, zoom, zoom);
                 g.fillRect(zoom * width + i * zoom, j * zoom, zoom, zoom);
@@ -199,6 +243,10 @@ public class PreviewPanel extends JPanel {
     private Object areaSeparatorSubscriber;
     private Object anglePaintSubscriber;
     private Object degreeSubscriber;
+    private Object activateContrastUpSubscriber;
+    private Object noiseMultiplierSubscriber;
+    private Object layerStopSubscriber;
+    private Object layersSubscriber;
 
     protected final void subscribeEvents() {
 
@@ -282,6 +330,33 @@ public class PreviewPanel extends JPanel {
                 repaint();
             }
         });
+        
+        activateContrastUpSubscriber = EventUtil.subscribe(ActivateContrastUpEvent.class, new Listener() {
 
+            @Override
+            public void onEvent(Event event) {
+                activateContrastUp = ((ActivateContrastUpEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        noiseMultiplierSubscriber = EventUtil.subscribe(NoiseMultiplierEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                noiseMultiplier = ((NoiseMultiplierEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        layerStopSubscriber = EventUtil.subscribe(LayerStopEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                layerStop = ((LayerStopEvent) event).getValue();
+                repaint();
+            }
+        });
+       
     }
 }

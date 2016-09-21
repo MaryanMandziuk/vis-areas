@@ -26,6 +26,7 @@ import net.test.app.event.ActivateContrastUpEvent;
 import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
+import net.test.app.event.ContrastLevelEvent;
 import net.test.app.event.DegreeEvent;
 import net.test.app.event.LayerStopEvent;
 import net.test.app.event.LineThresholdEvent;
@@ -65,6 +66,7 @@ public class PreviewPanel extends JPanel {
     private boolean activateContrastUp = false;
     private int noiseMultiplier = 1;
     private int layerStop = 1;
+    private int contrastLevel = 30;
 
     
     public static int SCAN_STEP = 1;
@@ -77,6 +79,7 @@ public class PreviewPanel extends JPanel {
     public static int NOISE_MULTIPLIER = 1;
     public static int LAYER_START = 1;
     public static int LAYERS = 1;
+    public static int CONTRAST_LEVEL = 30;
     
     
     private boolean ENABLE_RENDERING_HINTS = false;
@@ -86,7 +89,7 @@ public class PreviewPanel extends JPanel {
         super(true);
         subscribeEvents();
         try {
-            BufferedImage image = ImageIO.read(new File("images/test.jpg"));
+            BufferedImage image = ImageIO.read(new File("images/image005.jpg"));
 //            BufferedImage image2 = ImageIO.read(new File("images/image005.png"));
 
             width = image.getWidth();
@@ -103,7 +106,7 @@ public class PreviewPanel extends JPanel {
                     int g = (rgb >> 8) & 0xFF;
                     int b = (rgb & 0xFF);
                     int gray = (r + b + g) / 3;
-                    pixels[i][j] = (gray << 16) + (gray << 8) + gray;
+                    pixels[i][j] = gray;// (gray << 16) + (gray << 8) + gray;
                     copyPixels[i][j] = pixels[i][j];
 //                    pixels[i][j] = gray;
                     pixels2[i][j] = rgb;
@@ -145,7 +148,12 @@ public class PreviewPanel extends JPanel {
                     pixels[i][j] = copyPixels[i][j];
                 }
             }
-            applyContrastUP(pyramid, pixels, noiseMultiplier, layerStop);
+            applyContrastUP(
+                    pyramid, 
+                    pixels, 
+                    noiseMultiplier, 
+                    layerStop, 
+                    contrastLevel);
             
             for (int i = 0; i < pixels.length; i++) {
                 for (int j = 0; j < pixels[0].length; j++) {
@@ -247,6 +255,7 @@ public class PreviewPanel extends JPanel {
     private Object noiseMultiplierSubscriber;
     private Object layerStopSubscriber;
     private Object layersSubscriber;
+    private Object contrastLevelSubscriber;
 
     protected final void subscribeEvents() {
 
@@ -354,6 +363,15 @@ public class PreviewPanel extends JPanel {
             @Override
             public void onEvent(Event event) {
                 layerStop = ((LayerStopEvent) event).getValue();
+                repaint();
+            }
+        });
+        
+        contrastLevelSubscriber = EventUtil.subscribe(ContrastLevelEvent.class, new Listener() {
+
+            @Override
+            public void onEvent(Event event) {
+                contrastLevel = ((ContrastLevelEvent) event).getValue();
                 repaint();
             }
         });

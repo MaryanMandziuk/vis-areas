@@ -26,6 +26,7 @@ import net.test.app.event.ActivateContrastUpEvent;
 import net.test.app.event.AngleScanEvent;
 import net.test.app.event.AreaSeparatorEvent;
 import net.test.app.event.ColorThresholdEvent;
+import net.test.app.event.ContrastLevelEvent;
 import net.test.app.event.DegreeEvent;
 import net.test.app.event.LayerStopEvent;
 import net.test.app.event.LineThresholdEvent;
@@ -63,6 +64,7 @@ public class ToolsPane extends JPanel {
         JLabel degreeLabel = new JLabel("Degree");
         JLabel noiseMultiplierLabel = new JLabel("Noise constant multiplier");
         JLabel layerStopLabel = new JLabel("Layer stop value");
+        JLabel contrastLevelLabel = new JLabel("Contrast level");
         
         JButton loadButton = new JButton("Open");
         
@@ -277,12 +279,12 @@ public class ToolsPane extends JPanel {
         
         JSlider noiseMultiplierThreshold = new JSlider(JSlider.HORIZONTAL,
                 1,
-                100,
+                11,
                 PreviewPanel.NOISE_MULTIPLIER);
 
         noiseMultiplierThreshold.setPaintTicks(true);
-        noiseMultiplierThreshold.setMajorTickSpacing(10);
-        noiseMultiplierThreshold.setMinorTickSpacing(1);
+        noiseMultiplierThreshold.setMajorTickSpacing(1);
+        noiseMultiplierThreshold.setMinorTickSpacing(11);
         noiseMultiplierThreshold.setPaintLabels(true);
 
         noiseMultiplierThreshold.addChangeListener(new ChangeListener() {
@@ -312,6 +314,25 @@ public class ToolsPane extends JPanel {
                 }
             }
         });
+        
+        JSlider contrastLevelThreshold = new JSlider(JSlider.HORIZONTAL,
+                1,
+                60,
+                PreviewPanel.CONTRAST_LEVEL);
+
+        contrastLevelThreshold.setPaintTicks(true);
+        contrastLevelThreshold.setMajorTickSpacing(10);
+        contrastLevelThreshold.setMinorTickSpacing(1);
+        contrastLevelThreshold.setPaintLabels(true);
+
+        contrastLevelThreshold.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider s1 = (JSlider) e.getSource();
+                if (!s1.getValueIsAdjusting()) {
+                    EventUtil.publish(new ContrastLevelEvent(s1.getValue()));
+                }
+            }
+        });
 
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
@@ -329,6 +350,7 @@ public class ToolsPane extends JPanel {
                         .addComponent(degreeLabel)
                         .addComponent(noiseMultiplierLabel)
                         .addComponent(layerStopLabel)
+                        .addComponent(contrastLevelLabel)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addComponent(loadButton)
@@ -345,6 +367,7 @@ public class ToolsPane extends JPanel {
                         .addComponent(applyContrastUp)
                         .addComponent(noiseMultiplierThreshold)
                         .addComponent(layerStopThreshold)
+                        .addComponent(contrastLevelThreshold)
                 )
         );
 
@@ -401,6 +424,10 @@ public class ToolsPane extends JPanel {
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                         .addComponent(layerStopLabel)
                         .addComponent(layerStopThreshold)
+                )
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(contrastLevelLabel)
+                        .addComponent(contrastLevelThreshold)
                 )
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)));
     }

@@ -64,7 +64,7 @@ public class PreviewPanel extends JPanel {
     private boolean anglePaint = false;
     private int degree = 45;
     private boolean activateContrastUp = false;
-    private int noiseMultiplier = 1;
+    private int noiseMultiplier = 0;
     private int layerStop = 1;
     private int contrastLevel = 30;
 
@@ -89,7 +89,7 @@ public class PreviewPanel extends JPanel {
         super(true);
         subscribeEvents();
         try {
-            BufferedImage image = ImageIO.read(new File("images/image005.jpg"));
+            BufferedImage image = ImageIO.read(new File("images/test7.jpg"));
 //            BufferedImage image2 = ImageIO.read(new File("images/image005.png"));
 
             width = image.getWidth();

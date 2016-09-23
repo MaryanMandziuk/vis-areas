@@ -278,13 +278,13 @@ public class ToolsPane extends JPanel {
         });
         
         JSlider noiseMultiplierThreshold = new JSlider(JSlider.HORIZONTAL,
-                1,
-                11,
+                0,
+                10,
                 PreviewPanel.NOISE_MULTIPLIER);
 
         noiseMultiplierThreshold.setPaintTicks(true);
         noiseMultiplierThreshold.setMajorTickSpacing(1);
-        noiseMultiplierThreshold.setMinorTickSpacing(11);
+        noiseMultiplierThreshold.setMinorTickSpacing(10);
         noiseMultiplierThreshold.setPaintLabels(true);
 
         noiseMultiplierThreshold.addChangeListener(new ChangeListener() {

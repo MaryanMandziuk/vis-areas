@@ -73,7 +73,7 @@ public class UtilNGTest {
         result = Util.scannMajor(offset, width, height, scanStep, context, slope);
 
         assertEquals(result.get(0).p1, new Point2D.Double(0, 3), "w=h 45 degree line over diagonal faild first point");
-        assertEquals(result.get(0).p2, new Point2D.Double(4, 8), "w=h 45 degree line over diagonal faild second point");
+        assertEquals(result.get(0).p2, new Point2D.Double(5, 8), "w=h 45 degree line over diagonal faild second point");
         
         
         
@@ -98,7 +98,7 @@ public class UtilNGTest {
         result = Util.scannMajor(offset, width, height, scanStep, context, slope);
 
         assertEquals(result.get(0).p1, new Point2D.Double(0, 5), "w=h 45 degree line over diagonal faild first point");
-        assertEquals(result.get(0).p2, new Point2D.Double(2, 8), "w=h 45 degree line over diagonal faild second point"); 
+        assertEquals(result.get(0).p2, new Point2D.Double(3, 8), "w=h 45 degree line over diagonal faild second point"); 
         
         
         pixels = new int[][]{
@@ -388,7 +388,7 @@ public class UtilNGTest {
         
         assertEquals(result.size(), 3);
         assertEquals(result.get(0).p1, new Point2D.Double(1.3103448275862064, 5.3500000000000005), "w<h 12 degree line faild first point");
-        assertEquals(result.get(0).p2, new Point2D.Double(-0.37931034482758696, 8.0), "w<h 12 degree line faild second point"); 
+        assertEquals(result.get(0).p2, new Point2D.Double(-0.517241379310345, 8.0), "w<h 12 degree line faild second point"); 
         
         
         pixels = new int[][]{
